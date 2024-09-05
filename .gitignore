@@ -1,0 +1,44 @@
+# Python-related files
+*.py[cod]  # Compiled Python files
+__pycache__/  # Python cache directories
+
+# pytest and coverage-related files
+.coverage  # Coverage data file
+.pytest_cache/  # pytest cache directory
+
+# Docker-related files
+*.log  # Log files
+docker-compose.override.yml  # If you have environment-specific Docker Compose files
+
+# Virtual environment
+venv/  # Virtual environment directory if created
+
+# IDE-related files
+.vscode/  # VSCode settings
+.idea/  # PyCharm/IntelliJ project files
+*.sublime-workspace  # Sublime Text workspace settings
+*.sublime-project  # Sublime Text project files
+
+# macOS-related files
+.DS_Store  # macOS specific metadata file
+
+# Coverage reports
+htmlcov/  # HTML coverage report directory
+
+# Log files
+*.log  # Log files from running tests or the app
+
+# Byte-compiled / optimized / DLL files
+*.py[cod]
+*.so
+
+# pipenv, poetry, or other virtual environment files
+Pipfile.lock
+poetry.lock
+
+# Logs and databases
+*.sqlite3
+*.log
+
+# Environment variables file
+.env

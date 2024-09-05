@@ -1,0 +1,23 @@
+version: '3'
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+    environment:
+      - discovery.type=single-node
+    ports:
+      - 9200:9200
+    networks:
+      - es-net
+  fastapi:
+    build: .
+    ports:
+      - 8000:8000
+    networks:
+      - es-net
+    volumes:
+      - .:/app
+    environment:
+      - PYTHONPATH=/app
+networks:
+  es-net:
+    driver: bridge
