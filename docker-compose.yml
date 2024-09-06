@@ -1,5 +1,6 @@
 version: '3'
 services:
+
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
     environment:
@@ -8,16 +9,19 @@ services:
       - 9200:9200
     networks:
       - es-net
+
   fastapi:
     build: .
     ports:
       - 8000:8000
+      - 8011:8011 # Debugging purposes
     networks:
       - es-net
     volumes:
       - .:/app
     environment:
       - PYTHONPATH=/app
+
 networks:
   es-net:
     driver: bridge
