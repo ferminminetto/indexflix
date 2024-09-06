@@ -14,14 +14,12 @@ Indexflix is a basic FastAPI application that allows me to learn and experiment 
 
 1. Clone this repository.
 2. Ensure you have Docker installed.
-3. Run the app with the following command:
-
-   ```bash
-   docker-compose up
+3. Run the app with the following command: `docker-compose up`
 
 ### Testing
 
-To run test with coverage, use:
+To run test with coverage, use: `pytest --cov=.`
 
-```bash
-pytest --cov=.
+### Check the Docs
+
+You can open the docs to see the available endpoints and a short description in `localhost:8000/docs`.
