@@ -1,12 +1,12 @@
 from fastapi import APIRouter, HTTPException, Query
-from typing import Optional
+from typing import Optional, List
 import requests
 from app.utils.elastic import get_es_client
 from app.utils.logging import get_logger
-from functools import lru_cache
 
 router = APIRouter()
 logger = get_logger()
+es = get_es_client()
 
 INDEX_NAME = "movies"
 
@@ -65,3 +65,46 @@ async def index_movies(substr: Optional[str] = Query(None, max_length=100, min_l
     except Exception as e:
         logger.error("An unexpected error occurred during the indexing process: %s", str(e))
         raise HTTPException(status_code=500, detail="An unexpected error occurred")
+
+@router.get("/movies/search/", response_model=List[dict])
+async def search_movies(
+    title: Optional[str] = Query(None, max_length=100),
+    year: Optional[int] = Query(None),
+):
+    """
+    Search for movies by title substring and/or year in the Elasticsearch index.
+    """
+    logger.info(f"Searching for movies with title: {title} and year: {year}")
+
+    query = {
+        "bool": { "must": []}
+    }
+
+    if title:
+        query["bool"]["must"].append({
+            "match_phrase": {"Title": f"*{title}*"}
+        })
+
+    if year:
+            query["bool"]["must"].append({
+                "match": {"Year": year}
+            })
+
+    try:
+        result = es.search(index=INDEX_NAME, query=query)
+        movies = [hit["_source"] for hit in result["hits"]["hits"]]
+
+        if not movies:
+            logger.info("No movies found matching the criteria")
+            raise HTTPException(status_code=404, detail="No movies found")
+
+                
+        logger.info(f"Found {len(movies)} movies")
+        return movies
+
+    except HTTPException as e:
+        raise e
+
+    except Exception as e:
+        logger.error(f"An error occurred while searching for movies: {str(e)}")
+        raise HTTPException(status_code=500, detail="An error occurred while searching for movies") 
