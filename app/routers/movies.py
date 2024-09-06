@@ -70,6 +70,8 @@ async def index_movies(substr: Optional[str] = Query(None, max_length=100, min_l
 async def search_movies(
     title: Optional[str] = Query(None, max_length=100),
     year: Optional[int] = Query(None),
+    page: Optional[int] = Query(1, gt=0),
+    size: Optional[int] = Query(10, ge=1, le=100),
 ):
     """
     Search for movies by title substring and/or year in the Elasticsearch index.
@@ -91,7 +93,8 @@ async def search_movies(
             })
 
     try:
-        result = es.search(index=INDEX_NAME, query=query)
+        from_ = (page - 1) * size
+        result = es.search(index=INDEX_NAME, query=query, from_=from_, size=size)
         movies = [hit["_source"] for hit in result["hits"]["hits"]]
 
         if not movies:
