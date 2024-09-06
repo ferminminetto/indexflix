@@ -3,7 +3,6 @@ from fastapi.testclient import TestClient
 from unittest.mock import patch
 from app.main import app
 from tests.mock_data import MOCK_MOVIES
-from app.routers.movies import index_movies
 from app.utils.elastic import get_es_client
 
 
@@ -35,8 +34,8 @@ def test_index_movies(mock_get, mock_es_client, caplog):
     assert mock_es.indices.create.called
     assert mock_es.index.call_count
 
-@patch("app.routers.movies.get_es_client")  # Mock Elasticsearch client
-@patch("app.routers.movies.requests.get")   # Mock external API call
+@patch("app.routers.movies.get_es_client")
+@patch("app.routers.movies.requests.get")
 def test_index_movies_logging(mock_get, mock_es_client, caplog):
     mock_get.return_value.json.return_value = MOCK_MOVIES
 
@@ -115,7 +114,6 @@ def test_search_by_title_and_year():
     response = client.get("/movies/search/?title=Maze Runner&year=2015")
     assert response.status_code == 200
     movies = response.json()
-    breakpoint()
     
     # This time retrieved the only correct option.
     assert len(movies) == 1
@@ -127,3 +125,16 @@ def test_no_movies_found():
     assert response.status_code == 404
     assert response.json() == {"detail": "No movies found"}
 
+@patch("app.routers.movies.INDEX_NAME", new=INDEX_NAME)
+def test_pagination():
+    response = client.get("/movies/search/?title=Maze&page=1&size=1")
+    assert response.status_code == 200
+    movies = response.json()
+    assert len(movies) == 1
+    assert movies[0]["Title"] == "The Maze Runner"
+
+    response = client.get("/movies/search/?title=Maze&page=2&size=1")
+    assert response.status_code == 200
+    movies = response.json()
+    assert len(movies) == 1
+    assert movies[0]["Title"] == "Into the Grizzly Maze"
